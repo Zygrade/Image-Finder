@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import TextField from 'material-ui/TextField';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
+import axios from 'axios';
+import Results from '../results/Results';
 
 class Search extends Component {
     
@@ -13,13 +15,27 @@ class Search extends Component {
         images : [] 
     };
 
+    // Arrow function to eliminate the need to bind 'this' //
+
+    onTextChange = e => {
+        this.setState({[e.target.name] : e.target.value}, () => {
+            axios.get(`${this.state.apiUrl}/?key=${this.state.apiKey}&q=${this.state.searchText}
+            &safeSearch=true&per_page=${this.state.amount}&image_type=photo`)
+            .then(response => {this.setState({images : response.data.hits})})
+            .catch(error => console.log(error));
+        });
+    };
+
+    onAmountChange = (e,index,value) => this.setState({amount:value});    
+
     render() {
+        console.log(this.state.images);
         return (
             <div>
                 <TextField
                     name="searchText"
                     value={this.state.searchText}
-                    onChange={this.state.onTextChange}
+                    onChange={this.onTextChange}
                     floatingLabelText="Search for Images"
                     fullWidth={true}
                 />
@@ -28,7 +44,7 @@ class Search extends Component {
                     name="amount"
                     floatingLabelText="Amount"
                     value={this.state.amount}
-                    onChange={this.amountChange}
+                    onChange={this.onAmountChange}
                     >
                     <MenuItem value={5} primaryText="5" />
                     <MenuItem value={10} primaryText="10" />
@@ -37,6 +53,9 @@ class Search extends Component {
                     <MenuItem value={50} primaryText="50" />
                 </SelectField>
                 <br />
+
+                {this.state.images.length > 0 ?  ( <Results images={this.state.images}/>) : null}
+
             </div>
         )
     }
