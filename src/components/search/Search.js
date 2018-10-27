@@ -6,7 +6,7 @@ import axios from 'axios';
 import Results from '../results/Results';
 
 class Search extends Component {
-    
+
     state = {
         searchText : '',
         amount : 15,
@@ -18,11 +18,15 @@ class Search extends Component {
     // Arrow function to eliminate the need to bind 'this' //
 
     onTextChange = e => {
-        this.setState({[e.target.name] : e.target.value}, () => {
-            axios.get(`${this.state.apiUrl}/?key=${this.state.apiKey}&q=${this.state.searchText}
-            &safeSearch=true&per_page=${this.state.amount}&image_type=photo`)
-            .then(response => {this.setState({images : response.data.hits})})
-            .catch(error => console.log(error));
+        let val = e.target.value;
+        this.setState({[e.target.name] : val}, () => {
+            if(val) {
+                axios.get(`${this.state.apiUrl}/?key=${this.state.apiKey}&q=${this.state.searchText}&safeSearch=true&per_page=${this.state.amount}&image_type=photo`)
+                        .then(response => {this.setState({images : response.data.hits})})
+                        .catch(error => console.log(error));
+            } else {
+                this.setState({images:[]});
+            }
         });
     };
 
